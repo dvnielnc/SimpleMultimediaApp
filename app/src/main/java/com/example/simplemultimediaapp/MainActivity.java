@@ -22,6 +22,8 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
+    private MediaPlayer mediaPlayer;
+    private VideoView videoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         checkPermissions();
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -36,19 +39,33 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button playAudioButton = findViewById(R.id.btnReproducirAudio);
+        videoView = findViewById(R.id.videoView);
+
         playAudioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this,R.raw.loquetieneaudio);
+                if (videoView.isPlaying()) {
+                    videoView.pause();
+                }
+
+                if (mediaPlayer != null) {
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                }
+
+                mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.loquetieneaudio);
                 mediaPlayer.start();
             }
         });
 
-        VideoView videoView = findViewById(R.id.videoView);
         Button playVideoButton = findViewById(R.id.btnReproducirVideo);
         playVideoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
+
                 Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.valkyrievideo);
                 videoView.setVideoURI(videoUri);
                 videoView.start();
